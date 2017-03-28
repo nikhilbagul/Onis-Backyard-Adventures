@@ -1,19 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SkeletonAI : MonoBehaviour {
 
     public Transform player, enemyHead;
+    public Slider enemyHealthSlider, playerHealthSlider;
     public float timeToRotate;
-    public float attackRange = 5;
-    public float FOVRadius = 10;
+    public float attackRange = 3;
+    public float FOVRadius = 15;
     public float FOVAngle = 90;
    
     private Animator enemyAnimatorController;
     private Vector3 direction;
     private float angleFOV;
-    private bool pursuing, isTakingDamage;
+    private bool pursuing, isTakingDamage, isDead, hasWon;
 
     // Use this for initialization
     void Start ()
@@ -22,6 +24,8 @@ public class SkeletonAI : MonoBehaviour {
         enemyAnimatorController = GetComponent<Animator>();
         pursuing = false;
         isTakingDamage = false;
+        isDead = false;
+        hasWon = false;        
     }
 	
 	// Update is called once per frame
@@ -31,7 +35,7 @@ public class SkeletonAI : MonoBehaviour {
         direction.y = 0.0f;                                                 //prevent the enemy from bending            
         angleFOV = Vector3.Angle(enemyHead.transform.up, direction);
         
-        if (Vector3.Distance(this.transform.position, player.position) < FOVRadius && (angleFOV < FOVAngle/2 || pursuing))            //when the player is within enemy's range and FOV
+        if (Vector3.Distance(this.transform.position, player.position) < FOVRadius && (angleFOV < FOVAngle/2 || pursuing) && !isDead && !hasWon)            //when the player is within enemy's range and FOV
         {
             pursuing = true;
             this.transform.rotation = Quaternion.Slerp(this.transform.rotation, Quaternion.LookRotation(direction), timeToRotate);      //rotate the enemy to face the player
@@ -48,6 +52,16 @@ public class SkeletonAI : MonoBehaviour {
             {
                 enemyAnimatorController.SetBool("isWalking", false);
                 enemyAnimatorController.SetBool("isAttacking", true);
+
+                if (playerHealthSlider.value <= 0 )                             //check for player's death and play victory animation
+                {
+                    enemyAnimatorController.SetBool("hasWon", true);
+                    enemyAnimatorController.SetBool("isAttacking", false);
+                    enemyAnimatorController.SetBool("isIdle", false);
+                    enemyAnimatorController.SetBool("isWalking", false);
+                    enemyAnimatorController.SetBool("isTakingDamage", false);
+                    hasWon = true;
+                }
             }
         }
 
@@ -76,7 +90,17 @@ public class SkeletonAI : MonoBehaviour {
                 enemyAnimatorController.SetBool("isWalking", false);
                 enemyAnimatorController.SetBool("isAttacking", false);
             }
-        }           	
+        }
+
+        if (enemyHealthSlider.value == 0)
+        {
+            enemyAnimatorController.SetBool("isDead", true);
+            enemyAnimatorController.SetBool("isIdle", false);
+            enemyAnimatorController.SetBool("isWalking", false);
+            enemyAnimatorController.SetBool("isAttacking", false);
+            enemyAnimatorController.SetBool("isTakingDamage", false);
+            isDead = true;
+        }          	
 	}
 
     public void setIsTakingDamage()

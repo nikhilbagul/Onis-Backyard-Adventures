@@ -27,7 +27,7 @@ public class DetectPlayerHit : MonoBehaviour {
             //StartCoroutine("AnimationTriggerDelay");
             enemyHandler.setIsTakingDamage();
             Debug.Log("Player Hit Detected");
-            enemyHealthSlider.value = enemyHealthSlider.value - 20;
+            enemyHealthSlider.value = enemyHealthSlider.value - 10;
         }
     }
 
