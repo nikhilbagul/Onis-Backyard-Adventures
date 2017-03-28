@@ -57,7 +57,7 @@ public class CameraController : MonoBehaviour
 		{
 			transform.position = lastPosition; 
 		}
-		transform.LookAt(cameraTarget.transform.position);
+		transform.LookAt(cameraTarget.transform.forward);
 	}
 
 	void LateUpdate()
